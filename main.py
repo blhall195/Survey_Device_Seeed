@@ -20,4 +20,4 @@ laser.buzzer_off()
 while True:
     
     time.sleep(1)
-    #print(f"Distance is {laser.distance}cm")
+    #print(f"Distance is {laser.distance}cm")#
