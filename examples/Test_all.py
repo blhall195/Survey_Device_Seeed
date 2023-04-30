@@ -19,7 +19,8 @@ from adafruit_displayio_sh1107 import SH1107, DISPLAY_OFFSET_ADAFRUIT_128x128_OL
 from adafruit_bitmap_font import bitmap_font
 font = bitmap_font.load_font("lib/fonts/terminal.bdf")
 displayio.release_displays()
-i2c = board.I2C()  # uses board.SCL and board.SDA
+i2c=busio.I2C(board.SCL,board.SDA,frequency=400000)
+#i2c = board.I2C(frequency=400000)  # uses board.SCL and board.SDA
 display_bus = displayio.I2CDisplay(i2c, device_address=0x3d)
 
 laser_power = digitalio.DigitalInOut(board.D3)
@@ -57,8 +58,9 @@ FONTSCALE = 2
 from mag_cal.calibration import Calibration
 from mag_cal.utils import read_fixture
 
-i2c = board.I2C()
 rm = rm3100.RM3100_I2C(i2c, i2c_address=0x20)
+
+
 
 print("perfoming general")
 print("calibration")
@@ -67,22 +69,20 @@ mag_array =[]
 
 for i in range(24):
     mag = rm.magnetic
-    mag_list = list(mag)
-    mag_list[0], mag_list[1], mag_list[2] = mag_list[1], mag_list[0], mag_list[2]
-    mag = tuple(mag_list)
     mag_array.append(mag)
 
     with IMU() as imu:
         grav = imu.acceleration
-        grav_list = list(grav)
-        grav_list[0], grav_list[1], grav_list[2] = grav_list[1], grav_list[0], grav_list[2]
-        grav = tuple(grav_list)
     grav_array.append(grav)
 
     print(i)
 
-calib = Calibration()
+calib = Calibration(mag_axes="+Y+X-Z",grav_axes="-Y+X+Z")
+
 cal = calib.calibrate(mag_array, grav_array,0)
+print(cal)
+
+mag = rm.magnetic
 
 while True:
 
@@ -90,18 +90,10 @@ while True:
         Battery_voltage = bat.voltage
     Battery_amount = int((Battery_voltage/4.3)*32)
 
-    mag = rm.magnetic
     #micro_teslas = rm.convert_to_microteslas(mag)
-    mag_list = list(mag)
-    mag_list[0], mag_list[1], mag_list[2] = mag_list[1], mag_list[0], mag_list[2]
-    mag = tuple(mag_list)
 
     with IMU() as imu:
         grav = imu.acceleration
-        grav_list = list(grav)
-        grav_list[0], grav_list[1], grav_list[2] = grav_list[1], grav_list[0], grav_list[2]
-        grav = tuple(grav_list)
-
     azimuth, inclination, roll = calib.get_angles(mag, grav)
     print(f"{azimuth:05.1f}° {inclination:+05.1f}°")
     #print(micro_teslas)
@@ -136,5 +128,3 @@ while True:
     splash.append(small_square_2)
     splash.append(small_square_3)
     splash.append(small_square_4)
-
-

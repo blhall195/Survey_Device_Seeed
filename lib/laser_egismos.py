@@ -187,7 +187,7 @@ class Laser:
         """
         Disable beeps when receiving commands
         """
-        self._send_command_and_raise_on_failure(self.BUZZER_CONTROL, 0x01)
+        self._send_command_and_raise_on_failure(self.BUZZER_CONTROL, 0)
 
     def set_slave_address(self, address):
         """

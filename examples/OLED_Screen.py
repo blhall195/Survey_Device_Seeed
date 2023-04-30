@@ -8,6 +8,7 @@ This example writes text to the display, and draws a series of squares and a rec
 """
 
 import board
+import busio
 import displayio
 import terminalio
 from adafruit_display_text import bitmap_label as label
@@ -19,10 +20,8 @@ font = bitmap_font.load_font("lib/fonts/terminal.bdf")
 import random
 
 displayio.release_displays()
-
-# For I2C
-i2c = board.I2C()  # uses board.SCL and board.SDA
-# i2c = board.STEMMA_I2C()  # For using the built-in STEMMA QT connector on a microcontroller
+i2c=busio.I2C(board.SCL,board.SDA,frequency=400000)
+#i2c = board.I2C(frequency=400000)  # uses board.SCL and board.SDA
 display_bus = displayio.I2CDisplay(i2c, device_address=0x3d)
 
 # For SPI:
@@ -94,9 +93,3 @@ while True:
     splash.append(small_square_3)
     splash.append(small_square_4)
     splash.append(battery_percentage)
-
-    with Battery() as bat:
-        Battery_voltage = bat.voltage
-    print(Battery_voltage)
-
-

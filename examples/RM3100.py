@@ -13,4 +13,3 @@ rm = rm3100.RM3100_I2C(i2c, i2c_address=0x20)
 
 while True:
     print(rm.magnetic)
-    time.sleep(1)
